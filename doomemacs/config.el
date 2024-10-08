@@ -21,10 +21,10 @@
 ;; See 'C-h v doom-font' for documentation and more examples of what they
 ;; accept. For example:
 ;;
-;; (setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
+;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
 ;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
-(setq doom-font (font-spec :family "FiraCode Nerd Font" :size 17))
-;;
+
+
 ;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
 ;; refresh your font settings. If Emacs still can't find your font, it likely
@@ -75,6 +75,18 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
-(setq lsp-ui-sideline-enable nil)
 
-(add-hook 'org-mode-hook #'org-modern-mode)
+(setq doom-modeline-icon nil)
+
+
+;; (setq tree-sitter-hl-use-font-lock-keywords nil)
+(setq +tree-sitter-hl-enabled-modes '(not c-mode))
+(after! eglot
+  (set-eglot-client!  'rjsx-mode  '("typescript-language-server" "--stdio"))
+  (set-eglot-client! 'typescript-mode '("typescript-language-server" "--stdio"))
+  (setq eglot-ignored-server-capabilities '(:documentFormattingProvider))
+  )
+
+;; Disable annoying colors
+(fset 'rainbow-delimiters-mode #'ignore)
+
