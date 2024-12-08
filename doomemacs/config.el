@@ -103,16 +103,24 @@
         "\\`newsrc-dribble\\'" ;; Gnus
         "\\`\\*tramp/.*\\*\\'"))
 
+(custom-set-faces!
+  `(tree-sitter-hl-face:number :foreground ,(doom-color 'orange) :weight bold)
+  `(tree-sitter-hl-face:keyword :foreground, (doom-color 'magenta))
+  `(tree-sitter-hl-face:method :foreground , (doom-color 'blue))
+  `(tree-sitter-hl-face:function :foreground, (doom-color 'blue))
+  `(tree-sitter-hl-face:variable :foreground, (doom-color 'red))
+  `(tree-sitter-hl-face:variable.builtin :foreground, (doom-color 'orange))
+  `(tree-sitter-hl-face:constant :foreground ,(doom-color 'red)))
 
 (after! tree-sitter
   ;; Define custom faces for JSX
   (defface tree-sitter-hl-face:jsx-component-tag
-    `((t :foreground ,(doom-color 'yellow) :weight bold))
+    `((t :foreground ,(doom-color 'yellow)))
     "Face for JSX tags."
     :group 'tree-sitter-hl-faces)
 
   (defface tree-sitter-hl-face:jsx-html-tag
-    `((t :foreground ,(doom-darken (doom-color 'teal) .25)))
+    `((t :foreground ,(doom-color 'cyan)))
     "Face for JSX html tags."
     :group 'tree-sitter-hl-faces)
 
@@ -120,7 +128,6 @@
     `((t :foreground ,(doom-color 'red)))
     "Face for JSX attributes."
     :group 'tree-sitter-hl-faces)
-
 
   (defface tree-sitter-hl-face:jsx-text
     `((t :foreground ,(doom-color 'base8)))
@@ -130,6 +137,11 @@
   (defface tree-sitter-hl-face:jsx-delimiter
     `((t :foreground ,(doom-darken (doom-color 'yellow) .25)))
     "Face for JSX delimiter (<,  />, >)"
+    :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:bracket
+    `((t :foreground ,(doom-lighten (doom-color 'dark-cyan) .25)))
+    "Face for coloring brackets"
     :group 'tree-sitter-hl-faces)
 
   (tree-sitter-hl-add-patterns
@@ -171,10 +183,21 @@
        (match? @jsx-component-tag "^[A-Z]")
        "/>" @jsx-delimiter)
 
+      (jsx_opening_element
+       "<" @jsx-delimiter
+       ">" @jsx-delimiter)
+
+      (jsx_closing_element
+       "</" @jsx-delimiter
+       ">" @jsx-delimiter)
+
       (jsx_attribute
        (property_identifier) @jsx-attribute)
 
-      (jsx_text) @jsx-text))
+      (["{" "}" "[" "]" "(" ")"] @bracket)
+
+      (jsx_text) @jsx-text)
+    )
 
   (add-function :before-until tree-sitter-hl-face-mapping-function
                 (lambda (capture-name)
@@ -183,7 +206,9 @@
                     ("jsx-component-tag" 'tree-sitter-hl-face:jsx-component-tag)
                     ("jsx-attribute" 'tree-sitter-hl-face:jsx-attribute)
                     ("jsx-text" 'tree-sitter-hl-face:jsx-text)
-                    ("jsx-delimiter" 'tree-sitter-hl-face:jsx-delimiter))))
+                    ("jsx-delimiter" 'tree-sitter-hl-face:jsx-delimiter)
+                    ("bracket" 'tree-sitter-hl-face:bracket))))
+
 
   (setq treesit-font-lock-level 6)
   )
