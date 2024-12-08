@@ -23,8 +23,7 @@
 ;;
 ;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
 ;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
-
-
+;;
 ;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
 ;; refresh your font settings. If Emacs still can't find your font, it likely
@@ -77,16 +76,116 @@
 ;; they are implemented.
 
 (setq doom-modeline-icon nil)
+(setq lsp-ui-sideline-enable nil)
+
+;; (custom-set-faces!
+;;   `(js2-function-call :foreground ,(doom-color 'blue) :weight bold)
+;;   `(js2-object-property :slant italic)
+;;   `(rjsx-text :foreground ,(doom-color 'fg))
+;;   `(rjsx-tag-bracket-face :foreground ,(doom-lighten (doom-color 'blue) 0.15))
+;;   )
+
+(after! rjsx-mode
+  (setq js2-highlight-level 0))
 
 
-;; (setq tree-sitter-hl-use-font-lock-keywords nil)
-(setq +tree-sitter-hl-enabled-modes '(not c-mode))
-(after! eglot
-  (set-eglot-client!  'rjsx-mode  '("typescript-language-server" "--stdio"))
-  (set-eglot-client! 'typescript-mode '("typescript-language-server" "--stdio"))
-  (setq eglot-ignored-server-capabilities '(:documentFormattingProvider))
+(setq doom-save-last-session t)
+
+;; HACK could not find another way to do
+;; copy paste from source and add my own
+(setq consult-buffer-filter
+      '("\\` "
+        "^\\*"                          ;; HACK
+        "\\`\\*Completions\\*\\'"
+        "\\`\\*Flymake log\\*\\'"
+        "\\`\\*Semantic SymRef\\*\\'"
+        "\\`\\*vc\\*\\'"
+        "\\`newsrc-dribble\\'" ;; Gnus
+        "\\`\\*tramp/.*\\*\\'"))
+
+
+(after! tree-sitter
+  ;; Define custom faces for JSX
+  (defface tree-sitter-hl-face:jsx-component-tag
+    `((t :foreground ,(doom-color 'yellow) :weight bold))
+    "Face for JSX tags."
+    :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:jsx-html-tag
+    `((t :foreground ,(doom-darken (doom-color 'teal) .25)))
+    "Face for JSX html tags."
+    :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:jsx-attribute
+    `((t :foreground ,(doom-color 'red)))
+    "Face for JSX attributes."
+    :group 'tree-sitter-hl-faces)
+
+
+  (defface tree-sitter-hl-face:jsx-text
+    `((t :foreground ,(doom-color 'base8)))
+    "Face for JSX text."
+    :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:jsx-delimiter
+    `((t :foreground ,(doom-darken (doom-color 'yellow) .25)))
+    "Face for JSX delimiter (<,  />, >)"
+    :group 'tree-sitter-hl-faces)
+
+  (tree-sitter-hl-add-patterns
+      'javascript
+    '((jsx_opening_element
+       "<" @jsx-delimiter
+       (identifier) @jsx-html-tag
+       (match? @jsx-html-tag "^[a-z]")
+       ">" @jsx-delimiter)
+
+      (jsx_closing_element
+       "</" @jsx-delimiter
+       (identifier) @jsx-html-tag
+       (match? @jsx-html-tag "^[a-z]")
+       ">" @jsx-delimiter)
+
+      (jsx_self_closing_element
+       "<" @jsx-delimiter
+       (identifier) @jsx-html-tag
+       (match? @jsx-html-tag "^[a-z]")
+       "/>" @jsx-delimiter)
+
+      ;; Component tags
+      (jsx_opening_element
+       "<" @jsx-delimiter
+       (identifier) @jsx-component-tag
+       (match? @jsx-component-tag "^[A-Z]")
+       ">" @jsx-delimiter)
+
+      (jsx_closing_element
+       "</" @jsx-delimiter
+       (identifier) @jsx-component-tag
+       (match? @jsx-component-tag "^[A-Z]")
+       ">" @jsx-delimiter)
+
+      (jsx_self_closing_element
+       "<" @jsx-delimiter
+       (identifier) @jsx-component-tag
+       (match? @jsx-component-tag "^[A-Z]")
+       "/>" @jsx-delimiter)
+
+      (jsx_attribute
+       (property_identifier) @jsx-attribute)
+
+      (jsx_text) @jsx-text))
+
+  (add-function :before-until tree-sitter-hl-face-mapping-function
+                (lambda (capture-name)
+                  (pcase capture-name
+                    ("jsx-html-tag" 'tree-sitter-hl-face:jsx-html-tag)
+                    ("jsx-component-tag" 'tree-sitter-hl-face:jsx-component-tag)
+                    ("jsx-attribute" 'tree-sitter-hl-face:jsx-attribute)
+                    ("jsx-text" 'tree-sitter-hl-face:jsx-text)
+                    ("jsx-delimiter" 'tree-sitter-hl-face:jsx-delimiter))))
+
+  (setq treesit-font-lock-level 6)
   )
 
-;; Disable annoying colors
 (fset 'rainbow-delimiters-mode #'ignore)
-
