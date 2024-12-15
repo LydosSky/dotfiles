@@ -84,6 +84,8 @@
   (setq js2-highlight-level 0)
   (setq indent-tabs-mode nil)
   (setq lsp-diagnostics-provider :none)
+  (remove-hook 'rjsx-mode-hook #'rainbow-delimiters-mode)
+  (add-hook 'rjsx-mode-hook 'prettier-js-mode)
   )
 
 
@@ -100,9 +102,6 @@
         "\\`newsrc-dribble\\'" ;; Gnus
         "\\`\\*tramp/.*\\*\\'"))
 
-(defun rainbow-color ()
-  "face color for rainbow brackets"
-  (doom-lighten(doom-color 'dark-cyan) .25))
 
 
 (after! tree-sitter
@@ -123,19 +122,26 @@
     :group 'tree-sitter-hl-faces)
 
   (defface tree-sitter-hl-face:jsx-text
-    `((t :foreground ,(doom-color 'base8)))
+    `((t :foreground ,(doom-color 'base6)))
     "Face for JSX text."
     :group 'tree-sitter-hl-faces)
 
   (defface tree-sitter-hl-face:jsx-delimiter
-    `((t :foreground ,(doom-darken (doom-color 'yellow) .25)))
+    `((t :foreground ,(doom-darken (doom-color 'fg) .25)))
     "Face for JSX delimiter (<,  />, >)"
     :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:jsx-bracket
+    `((t :foreground ,(doom-color 'fg) :weight bold))
+    "Faces for JSX brackets {  } "
+    :group 'tree-sitter-hl-faces)
+
 
   (defface tree-sitter-hl-face:booolean
     `((t :foreground ,(doom-color 'orange) :weight bold))
     "Faces for Boolean values true false "
     :group 'tree-sitter-hl-faces)
+
 
 
   (tree-sitter-hl-add-patterns
@@ -199,11 +205,19 @@
        (formal_parameters
         (object_pattern
          (shorthand_property_identifier_pattern) @destructuring)))
+
       (arrow_function
        (formal_parameters
         (object_pattern
          (shorthand_property_identifier_pattern) @destructuring)))
 
+      (jsx_expression
+       "{" @jsx-bracket
+       "}" @jsx-bracket)
+
+      (ternary_expression
+       "?" @ternary
+       ":" @ternary)
       )
     )
 
@@ -215,24 +229,23 @@
                     ("jsx-attribute" 'tree-sitter-hl-face:jsx-attribute)
                     ("jsx-text" 'tree-sitter-hl-face:jsx-text)
                     ("jsx-delimiter" 'tree-sitter-hl-face:jsx-delimiter)
+                    ("jsx-bracket" 'tree-sitter-hl-face:jsx-bracket)
                     ("boolean" 'tree-sitter-hl-face:booolean)
                     ("destructuring" 'tree-sitter-hl-face:jsx-attribute)
+                    ("ternary" 'tree-sitter-hl-face:jsx-attribute)
                     )))
-
   (custom-set-faces!
     `(tree-sitter-hl-face:number :foreground  ,(doom-color 'orange) :weight bold)
-    `(tree-sitter-hl-face:keyword :foreground ,(doom-color 'magenta))
+    `(tree-sitter-hl-face:operator :foreground ,(doom-color 'fg))
     `(tree-sitter-hl-face:method :foreground  ,(doom-color 'blue))
     `(tree-sitter-hl-face:function :foreground ,(doom-color 'blue))
     `(tree-sitter-hl-face:constant :foreground ,(doom-color 'red))
-    `(rainbow-delimiters-depth-1-face :foreground ,(rainbow-color))
-    `(rainbow-delimiters-depth-2-face :foreground ,(rainbow-color))
-    `(rainbow-delimiters-depth-3-face :foreground ,(rainbow-color))
-    `(rainbow-delimiters-depth-4-face :foreground ,(rainbow-color))
+    `(tree-sitter-hl-face:keyword :foreground ,(doom-color 'magenta))
+    `(tree-sitter-hl-face:string.special :foreground ,(doom-color 'blue))
     )
-
-
   )
+
+
 
 (setq +format-on-save-disabled-modes (add-to-list '+format-on-save-disabled-modes 'rjsx-mode))
 (setq +format-on-save-disabled-modes (add-to-list '+format-on-save-disabled-modes 'web-mode))
@@ -240,19 +253,17 @@
 
 
 
-(add-hook 'rjsx-mode-hook 'prettier-js-mode)
+
 (add-hook 'web-mode-hook 'prettier-js-mode)
 (setq prettier-js-show-errors nil)
 
 
 (setq idle-update-delay 0.1)
-;;(setq motion-smooth-scroll t)
 (setq lazy-motion-mode t)
 (setq resdisplay-dont-pause t)
 
 (after! doom-modeline
-  (setq doom-modeline-icon nil)
-  )
+  (setq doom-modeline-icon nil))
 
 (use-package! lsp-tailwindcss
   :after lsp-mode
