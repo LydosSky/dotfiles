@@ -32,78 +32,68 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(yaml
+   '(
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
-     (templates :variables
-                templates-private-directory "~/.space-emacs/templates")
+     better-defaults
+     (xclipboard :variables
+                 xclipboard-enable-cliphist t)
      emacs-lisp
      git
+     (multiple-cursors :variables
+                       multiple-cursors-backend 'mc)
      (ivy :variables
-          ivy-enable-icons t)
-     templates
+          ivy-height 5
+          ivy-ignore-buffers '("\\`\\*.*\\*\\'")
+          )
+
      (lsp :variables
           lsp-headerline-breadcrumb-enable nil
           lsp-ui-sideline-enable nil)
-     ;; markdown
-     multiple-cursors
-     (org :variables
-          org-enable-appear-support t
-          org-enable-modern-support t
-          org-enable-valign t
-          org-todo-dependencies-strategy 'naive-auto
-          org-enable-valign t
-          org-startup-indented t)
-     ;; (shell :variables
-     ;;        shell-default-height 30
-     ;;        shell-default-position 'bottom)
-     ;; spell-checking
-     ;; syntax-checking
+     markdown
+     syntax-checking
      (version-control :variables
                       version-control-global-margin t)
-     ;; treemacs
-     (c-c++ :variables
-            c-c++-enable-clang-format-on-save t)
      (tree-sitter :variables
                   tree-sitter-syntax-highlight-enable t
                   tree-sitter-fold-enable nil)
-     (ibuffer :variables
-              ibuffer-group-buffers-by 'projects)
-     (lua :variables
-          lua-backend 'lsp
-          lua-lsp-server 'lua-language-server)
-     rust
-     prettier
+     (javascript :variables
+                 javascript-lsp-linter nil
+                 javascript-fmt-on-save t
+                 javascript-fmt-tool 'prettier
+                 js2-highlight-level 0
+                 )
      (html :variables
            css-enable-lsp t
            html-enable-lsp t
            web-fmt-tool 'prettier)
-     (python :variables
-             python-backend 'lsp
-             python-lsp-server 'pyright
-             python-formatter 'black
-             python-format-on-save t
-             python-fill-column 80)
+     prettier
      (auto-completion :variables
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-enable-help-tooltip t
                       auto-completion-enable-sort-by-usage t
                       )
      dtrt-indent
+     (ibuffer :variables
+              ibuffer-group-buffers-by 'projects)
+     react
+     theming
      )
+
 
    ;; List of additional packages that will be installed without being wrapped
    ;; in a layer (generally the packages are installed only and should still be
    ;; loaded using load/require/use-package in the user-config section below in
    ;; this file). If you need some configuration for these packages, then
-   ;; consider creating a layer. You can also put the configuration in
+   ;; consider crreating a layer. You can also put the configuration in
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(modus-themes)
+   dotspacemacs-additional-packages '(doom-themes
+                                      lsp-tailwindcss)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -150,14 +140,6 @@ It should only modify the values of Spacemacs settings."
    ;;   ./emacs --dump-file=$HOME/.emacs.d/.cache/dumps/spacemacs-27.1.pdmp
    ;; (default (format "spacemacs-%s.pdmp" emacs-version))
    dotspacemacs-emacs-dumper-dump-file (format "spacemacs-%s.pdmp" emacs-version)
-
-   ;; If non-nil ELPA repositories are contacted via HTTPS whenever it's
-   ;; possible. Set it to nil if you have no way to use HTTPS in your
-   ;; environment, otherwise it is strongly recommended to let it set to t.
-   ;; This variable has no effect if Emacs is launched with the parameter
-   ;; `--insecure' which forces the value of this variable to nil.
-   ;; (default t)
-   dotspacemacs-elpa-https t
 
    ;; Maximum allowed time in seconds to contact an ELPA repository.
    ;; (default 5)
@@ -263,7 +245,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil, *scratch* buffer will be persistent. Things you write down in
    ;; *scratch* buffer will be saved and restored automatically.
-   dotspacemacs-scratch-buffer-persistent t
+   dotspacemacs-scratch-buffer-persistent nil
 
    ;; If non-nil, `kill-buffer' on *scratch* buffer
    ;; will bury it instead of killing.
@@ -275,10 +257,11 @@ It should only modify the values of Spacemacs settings."
 
    ;; List of themes, the first of the list is loaded when spacemacs starts.
    ;; Press `SPC T n' to cycle to the next theme in the list (works great
-   ;; with 2 themes variants, one dark and one light)
-   dotspacemacs-themes '(modus-operandi
-                         spacemacs-dark
-                         spacemacs-light)
+   ;; with 2 themes variants, one dark and one light). A theme from external
+   ;; package can be defined with `:package', or a theme can be defined with
+   ;; `:location' to download the theme package, refer the themes section in
+   ;; DOCUMENTATION.org for the full theme specifications.
+   dotspacemacs-themes '(doom-one-light)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -287,18 +270,19 @@ It should only modify the values of Spacemacs settings."
    ;; refer to the DOCUMENTATION.org for more info on how to create your own
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
-   dotspacemacs-mode-line-theme '(spacemacs :separator nil)
-   ;;dotspacemacs-mode-line-theme 'doom
+   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
    dotspacemacs-colorize-cursor-according-to-state t
 
-   ;; Default font or prioritized list of fonts. The `:size' can be specified as
+   ;; Default font or prioritized list of fonts. This setting has no effect when
+   ;; running Emacs in terminal. The font set here will be used for default and
+   ;; fixed-pitch faces. The `:size' can be specified as
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
-   dotspacemacs-default-font '("JetBrainsMono Nerd Font"
-                               :size 13.0
+   dotspacemacs-default-font '("Source Code Pro"
+                               :size 10.0
                                :weight normal
                                :width normal)
 
@@ -313,9 +297,8 @@ It should only modify the values of Spacemacs settings."
    dotspacemacs-ex-command-key ":"
 
    ;; The leader key accessible in `emacs state' and `insert state'
-
    ;; (default "M-m")
-   dotspacemacs-emacs-leader-key "M-m"
+   dotspacemacs-emacs-leader-key "C-c"
 
    ;; Major mode leader key is a shortcut key which is the equivalent of
    ;; pressing `<leader> m`. Set it to `nil` to disable it. (default ",")
@@ -390,6 +373,22 @@ It should only modify the values of Spacemacs settings."
    ;; displayed in the current window. (default nil)
    dotspacemacs-switch-to-buffer-prefers-purpose nil
 
+   ;; Whether side windows (such as those created by treemacs or neotree)
+   ;; are kept or minimized by `spacemacs/toggle-maximize-window' (SPC w m).
+   ;; (default t)
+   dotspacemacs-maximize-window-keep-side-windows t
+
+   ;; If nil, no load-hints enabled. If t, enable the `load-hints' which will
+   ;; put the most likely path on the top of `load-path' to reduce walking
+   ;; through the whole `load-path'. It's an experimental feature to speedup
+   ;; Spacemacs on Windows. Refer the FAQ.org "load-hints" session for details.
+   dotspacemacs-enable-load-hints nil
+
+   ;; If t, enable the `package-quickstart' feature to avoid full package
+   ;; loading, otherwise no `package-quickstart' attemption (default nil).
+   ;; Refer the FAQ.org "package-quickstart" section for details.
+   dotspacemacs-enable-package-quickstart nil
+
    ;; If non-nil a progress bar is displayed when spacemacs is loading. This
    ;; may increase the boot time on some systems and emacs builds, set it to
    ;; nil to boost the loading time. (default t)
@@ -416,7 +415,7 @@ It should only modify the values of Spacemacs settings."
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
-   dotspacemacs-active-transparency 100
+   dotspacemacs-active-transparency 90
 
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's inactive or deselected.
@@ -426,7 +425,7 @@ It should only modify the values of Spacemacs settings."
    ;; A value from the range (0..100), in increasing opacity, which describes the
    ;; transparency level of a frame background when it's active or selected. Transparency
    ;; can be toggled through `toggle-background-transparency'. (default 90)
-   dotspacemacs-background-transparency 100
+   dotspacemacs-background-transparency 90
 
    ;; If non-nil show the titles of transient states. (default t)
    dotspacemacs-show-transient-state-title t
@@ -511,6 +510,13 @@ It should only modify the values of Spacemacs settings."
    ;; (default '("rg" "ag" "pt" "ack" "grep"))
    dotspacemacs-search-tools '("rg" "ag" "pt" "ack" "grep")
 
+   ;; The backend used for undo/redo functionality. Possible values are
+   ;; `undo-fu', `undo-redo' and `undo-tree' see also `evil-undo-system'.
+   ;; Note that saved undo history does not get transferred when changing
+   ;; your undo system. The default is currently `undo-fu' as `undo-tree'
+   ;; is not maintained anymore and `undo-redo' is very basic."
+   dotspacemacs-undo-system 'undo-fu
+
    ;; Format specification for setting the frame title.
    ;; %a - the `abbreviated-file-name', or `buffer-name'
    ;; %t - `projectile-project-name'
@@ -546,6 +552,9 @@ It should only modify the values of Spacemacs settings."
    ;; to aggressively delete empty line and long sequences of whitespace,
    ;; `trailing' to delete only the whitespace at end of lines, `changed' to
    ;; delete only whitespace for changed lines or `nil' to disable cleanup.
+   ;; The variable `global-spacemacs-whitespace-cleanup-modes' controls
+   ;; which major modes have whitespace cleanup enabled or disabled
+   ;; by default.
    ;; (default nil)
    dotspacemacs-whitespace-cleanup nil
 
@@ -589,7 +598,7 @@ default it calls `spacemacs/load-spacemacs-env' which loads the environment
 variables declared in `~/.spacemacs.env' or `~/.spacemacs.d/.spacemacs.env'.
 See the header of this file for more information."
   (spacemacs/load-spacemacs-env)
-)
+  )
 
 (defun dotspacemacs/user-init ()
   "Initialization for user code:
@@ -597,7 +606,6 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-
   )
 
 
@@ -606,7 +614,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
 This function is called only while dumping Spacemacs configuration. You can
 `require' or `load' the libraries of your choice that will be included in the
 dump."
-)
+  )
 
 
 (defun dotspacemacs/user-config ()
@@ -615,34 +623,151 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
-  (setq doom-modeline-enable-word-count t)
-  (setq doom-modeline-total-line-number t)
+  (setq spaceline-window-number-p nil)
   (add-hook 'web-mode-hook 'prettier-js-mode)
   (add-hook 'css-mode-hook 'prettier-js-mode)
-  (setq-default evil-escape-key-sequence "jk")
-)
+  (setq prettier-js-show-errors nil)
+
+
+  (defun get-doom-one-light-palette ()
+    "Return the palette for the `doom-one-light` theme as a hash table."
+    (let ((palette (make-hash-table :test 'equal)))
+      (dolist (color
+               '(("bg"         "#fafafa")
+                 ("fg"         "#383a42")
+                 ("bg-alt"     "#f0f0f0")
+                 ("fg-alt"     "#c6c7c7")
+                 ("base0"      "#f0f0f0")
+                 ("base1"      "#e7e7e7")
+                 ("base2"      "#dfdfdf")
+                 ("base3"      "#c6c7c7")
+                 ("base4"      "#9ca0a4")
+                 ("base5"      "#383a42")
+                 ("base6"      "#202328")
+                 ("base7"      "#1c1f24")
+                 ("base8"      "#1b2229")
+                 ("grey"       "#9ca0a4")
+                 ("red"        "#e45649")
+                 ("orange"     "#da8548")
+                 ("green"      "#50a14f")
+                 ("teal"       "#4db5bd")
+                 ("yellow"     "#986801")
+                 ("blue"       "#4078f2")
+                 ("dark-blue"  "#a0bcf8")
+                 ("magenta"    "#a626a4")
+                 ("violet"     "#b751b6")
+                 ("cyan"       "#0184bc")
+                 ("dark-cyan"  "#005478")))
+        (puthash (car color) (cadr color) palette))
+      palette))
+
+  (defface tree-sitter-hl-face:jsx-component-tag
+    `((t :foreground "#986801"))
+    "Face for JSX tags."
+    :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:jsx-html-tag
+    `((t :foreground "#0184bc"))
+    "Face for JSX html tags."
+    :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:jsx-attribute
+    `((t :foreground "#e45649"))
+    "Face for JSX attributes."
+    :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:jsx-text
+    `((t :foreground "#383a42"))
+    "Face for JSX text."
+    :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:jsx-delimiter
+    `((t :foreground "#383a42")) ; Slightly darkened yellow
+    "Face for JSX delimiter (<,  />, >)"
+    :group 'tree-sitter-hl-faces)
+
+  (tree-sitter-hl-add-patterns
+      'javascript
+    '((jsx_opening_element
+       "<" @jsx-delimiter
+       (identifier) @jsx-html-tag
+       (match? @jsx-html-tag "^[a-z]")
+       ">" @jsx-delimiter)
+
+      (jsx_closing_element
+       "</" @jsx-delimiter
+       (identifier) @jsx-html-tag
+       (match? @jsx-html-tag "^[a-z]")
+       ">" @jsx-delimiter)
+
+      (jsx_self_closing_element
+       "<" @jsx-delimiter
+       (identifier) @jsx-html-tag
+       (match? @jsx-html-tag "^[a-z]")
+       "/>" @jsx-delimiter)
+
+      ;; Component tags
+      (jsx_opening_element
+       "<" @jsx-delimiter
+       (identifier) @jsx-component-tag
+       (match? @jsx-component-tag "^[A-Z]")
+       ">" @jsx-delimiter)
+
+      (jsx_closing_element
+       "</" @jsx-delimiter
+       (identifier) @jsx-component-tag
+       (match? @jsx-component-tag "^[A-Z]")
+       ">" @jsx-delimiter)
+
+      (jsx_self_closing_element
+       "<" @jsx-delimiter
+       (identifier) @jsx-component-tag
+       (match? @jsx-component-tag "^[A-Z]")
+       "/>" @jsx-delimiter)
+
+      (jsx_opening_element
+       "<" @jsx-delimiter
+       ">" @jsx-delimiter)
+
+      (jsx_closing_element
+       "</" @jsx-delimiter
+       ">" @jsx-delimiter)
+
+      (jsx_attribute
+       (property_identifier) @jsx-attribute)
+
+      (jsx_text) @jsx-text)
+    )
+
+  (add-function :before-until tree-sitter-hl-face-mapping-function
+                (lambda (capture-name)
+                  (pcase capture-name
+                    ("jsx-html-tag" 'tree-sitter-hl-face:jsx-html-tag)
+                    ("jsx-component-tag" 'tree-sitter-hl-face:jsx-component-tag)
+                    ("jsx-attribute" 'tree-sitter-hl-face:jsx-attribute)
+                    ("jsx-text" 'tree-sitter-hl-face:jsx-text)
+                    ("jsx-delimiter" 'tree-sitter-hl-face:jsx-delimiter)
+                    )))
+
+  (custom-set-faces
+   '(tree-sitter-hl-face:number ((t (:foreground "#da8548" :weight bold))))
+   '(tree-sitter-hl-face:keyword ((t (:foreground "#a626a4"))))
+   '(tree-sitter-hl-face:method ((t (:foreground "#4078f2"))))
+   '(tree-sitter-hl-face:function ((t (:foreground "#4078f2"))))
+   '(tree-sitter-hl-face:variable ((t (:foreground "#e45649"))))
+   '(tree-sitter-hl-face:variable.builtin ((t (:foreground "#da8548"))))
+   '(tree-sitter-hl-face:constant ((t (:foreground "#e45649")))))
+
+  (use-package lsp-tailwindcss
+    :after lsp-mode
+    :init
+    (setq lsp-tailwindcss-add-on-mode t)
+    (setq lsp-tailwindcss-server-path "/home/rylan/.nvm/versions/node/v22.11.0/bin/tailwindcss-language-server")
+    )
+
+
+  )
 
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
-(defun dotspacemacs/emacs-custom-settings ()
-  "Emacs custom settings.
-This is an auto-generated function, do not modify its content directly, use
-Emacs customize menu instead.
-This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("cb8eb6d80c3908a53b0c8a98ab0cedd007c1f10593a5f0f1e2ee24eec241e3e0" "bbfccff82c1d35611cdf25339401a483875b32472fae7fcdaf14bd12c3a05b07" "0f76f9e0af168197f4798aba5c5ef18e07c926f4e7676b95f2a13771355ce850" "b29ba9bfdb34d71ecf3322951425a73d825fb2c002434282d2e0e8c44fce8185" "9f297216c88ca3f47e5f10f8bd884ab24ac5bc9d884f0f23589b0a46a608fe14" "6bdc4e5f585bb4a500ea38f563ecf126570b9ab3be0598bdf607034bb07a8875" "3e335d794ed3030fefd0dbd7ff2d3555e29481fe4bbb0106ea11c660d6001767" "c71fd8fbda070ff5462e052d8be87423e50d0f437fbc359a5c732f4a4c535c43" "37b6695bae243145fa2dfb41440c204cd22833c25cd1993b0f258905b9e65577" "4e2e42e9306813763e2e62f115da71b485458a36e8b4c24e17a2168c45c9cf9d" "d6b934330450d9de1112cbb7617eaf929244d192c4ffb1b9e6b63ad574784aad" "4cf3221feff536e2b3385209e9b9dc4c2e0818a69a1cdb4b522756bcdf4e00a4" "bbb13492a15c3258f29c21d251da1e62f1abb8bbd492386a673dcfab474186af" default))
- '(package-selected-packages
-   '(all-the-icons-ivy yaml-mode yatemplate yasnippet-snippets yapfify writeroom-mode which-key wgrep web-mode web-beautify volatile-highlights vim-powerline vim-empty-lines-mode valign tree-sitter-langs toml-mode toc-org term-cursor tagedit symon sphinx-doc spaceline space-doc smex smeargle slim-mode scss-mode sass-mode rustic ron-mode rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort pug-mode prettier-js popwin poetry pippel pipenv pip-requirements pcre2el overseer orgit-forge org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink nose nameless macrostep lsp-ui lsp-python-ms lsp-pyright lsp-origami lsp-ivy live-py-mode ivy-yasnippet ivy-xref ivy-rtags ivy-rich ivy-hydra ivy-avy inspector indent-guide importmagic impatient-mode ibuffer-projectile hybrid-mode holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-make google-c-style gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link gendoxy flycheck-ycmd flycheck-rtags flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery evil-org evil-mc evil-evilified-state emr emmet-mode elisp-slime-nav elisp-def dotenv-mode doom-modeline disaster diminish diff-hl dap-mode cython-mode cpp-auto-include counsel-projectile counsel-css company-ycmd company-web company-statistics company-rtags company-quickhelp company-lua company-c-headers company-anaconda column-enforce-mode code-cells ccls browse-at-remote blacken bind-map auto-yasnippet auto-compile all-the-icons)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:background nil)))))
-)
