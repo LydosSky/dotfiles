@@ -75,21 +75,18 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
-(setq doom-modeline-icon nil)
-(setq lsp-ui-sideline-enable nil)
-
-;; (custom-set-faces!
-;;   `(js2-function-call :foreground ,(doom-color 'blue) :weight bold)
-;;   `(js2-object-property :slant italic)
-;;   `(rjsx-text :foreground ,(doom-color 'fg))
-;;   `(rjsx-tag-bracket-face :foreground ,(doom-lighten (doom-color 'blue) 0.15))
-;;   )
+(after! lsp-ui
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-ui-doc-enable t)
+  )
 
 (after! rjsx-mode
-  (setq js2-highlight-level 0))
+  (setq js2-highlight-level 0)
+  (setq indent-tabs-mode nil)
+  (setq lsp-diagnostics-provider :none)
+  )
 
 
-(setq doom-save-last-session t)
 
 ;; HACK could not find another way to do
 ;; copy paste from source and add my own
@@ -103,14 +100,10 @@
         "\\`newsrc-dribble\\'" ;; Gnus
         "\\`\\*tramp/.*\\*\\'"))
 
-(custom-set-faces!
-  `(tree-sitter-hl-face:number :foreground ,(doom-color 'orange) :weight bold)
-  `(tree-sitter-hl-face:keyword :foreground, (doom-color 'magenta))
-  `(tree-sitter-hl-face:method :foreground , (doom-color 'blue))
-  `(tree-sitter-hl-face:function :foreground, (doom-color 'blue))
-  `(tree-sitter-hl-face:variable :foreground, (doom-color 'red))
-  `(tree-sitter-hl-face:variable.builtin :foreground, (doom-color 'orange))
-  `(tree-sitter-hl-face:constant :foreground ,(doom-color 'red)))
+(defun rainbow-color ()
+  "face color for rainbow brackets"
+  (doom-lighten(doom-color 'dark-cyan) .25))
+
 
 (after! tree-sitter
   ;; Define custom faces for JSX
@@ -139,10 +132,11 @@
     "Face for JSX delimiter (<,  />, >)"
     :group 'tree-sitter-hl-faces)
 
-  (defface tree-sitter-hl-face:bracket
-    `((t :foreground ,(doom-lighten (doom-color 'dark-cyan) .25)))
-    "Face for coloring brackets"
+  (defface tree-sitter-hl-face:booolean
+    `((t :foreground ,(doom-color 'orange) :weight bold))
+    "Faces for Boolean values true false "
     :group 'tree-sitter-hl-faces)
+
 
   (tree-sitter-hl-add-patterns
       'javascript
@@ -194,9 +188,23 @@
       (jsx_attribute
        (property_identifier) @jsx-attribute)
 
-      (["{" "}" "[" "]" "(" ")"] @bracket)
+      (true) @boolean
+      (false) @boolean
 
-      (jsx_text) @jsx-text)
+
+
+      (jsx_text) @jsx-text
+
+      (function_declaration
+       (formal_parameters
+        (object_pattern
+         (shorthand_property_identifier_pattern) @destructuring)))
+      (arrow_function
+       (formal_parameters
+        (object_pattern
+         (shorthand_property_identifier_pattern) @destructuring)))
+
+      )
     )
 
   (add-function :before-until tree-sitter-hl-face-mapping-function
@@ -207,10 +215,48 @@
                     ("jsx-attribute" 'tree-sitter-hl-face:jsx-attribute)
                     ("jsx-text" 'tree-sitter-hl-face:jsx-text)
                     ("jsx-delimiter" 'tree-sitter-hl-face:jsx-delimiter)
-                    ("bracket" 'tree-sitter-hl-face:bracket))))
+                    ("boolean" 'tree-sitter-hl-face:booolean)
+                    ("destructuring" 'tree-sitter-hl-face:jsx-attribute)
+                    )))
+
+  (custom-set-faces!
+    `(tree-sitter-hl-face:number :foreground  ,(doom-color 'orange) :weight bold)
+    `(tree-sitter-hl-face:keyword :foreground ,(doom-color 'magenta))
+    `(tree-sitter-hl-face:method :foreground  ,(doom-color 'blue))
+    `(tree-sitter-hl-face:function :foreground ,(doom-color 'blue))
+    `(tree-sitter-hl-face:constant :foreground ,(doom-color 'red))
+    `(rainbow-delimiters-depth-1-face :foreground ,(rainbow-color))
+    `(rainbow-delimiters-depth-2-face :foreground ,(rainbow-color))
+    `(rainbow-delimiters-depth-3-face :foreground ,(rainbow-color))
+    `(rainbow-delimiters-depth-4-face :foreground ,(rainbow-color))
+    )
 
 
-  (setq treesit-font-lock-level 6)
   )
 
-(fset 'rainbow-delimiters-mode #'ignore)
+(setq +format-on-save-disabled-modes (add-to-list '+format-on-save-disabled-modes 'rjsx-mode))
+(setq +format-on-save-disabled-modes (add-to-list '+format-on-save-disabled-modes 'web-mode))
+
+
+
+
+(add-hook 'rjsx-mode-hook 'prettier-js-mode)
+(add-hook 'web-mode-hook 'prettier-js-mode)
+(setq prettier-js-show-errors nil)
+
+
+(setq idle-update-delay 0.1)
+;;(setq motion-smooth-scroll t)
+(setq lazy-motion-mode t)
+(setq resdisplay-dont-pause t)
+
+(after! doom-modeline
+  (setq doom-modeline-icon nil)
+  )
+
+(use-package! lsp-tailwindcss
+  :after lsp-mode
+  :init
+  (setq lsp-tailwindcss-add-on-mode t)
+  (setq lsp-tailwindcss-server-path "/home/rylan/.nvm/versions/node/v22.11.0/bin/tailwindcss-language-server")
+  )
