@@ -132,7 +132,7 @@
     :group 'tree-sitter-hl-faces)
 
   (defface tree-sitter-hl-face:jsx-bracket
-    `((t :foreground ,(doom-color 'fg) :weight bold))
+    `((t :foreground ,(doom-color 'teal) :weight bold))
     "Faces for JSX brackets {  } "
     :group 'tree-sitter-hl-faces)
 
@@ -140,6 +140,11 @@
   (defface tree-sitter-hl-face:booolean
     `((t :foreground ,(doom-color 'orange) :weight bold))
     "Faces for Boolean values true false "
+    :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:not-operator
+    `((t :foreground ,(doom-color 'red) :weight bold))
+    "Faces for ! (not) logic"
     :group 'tree-sitter-hl-faces)
 
 
@@ -197,6 +202,8 @@
       (true) @boolean
       (false) @boolean
 
+      (unary_expression
+       operator: "!" @not-operator)
 
 
       (jsx_text) @jsx-text
@@ -232,7 +239,8 @@
                     ("jsx-bracket" 'tree-sitter-hl-face:jsx-bracket)
                     ("boolean" 'tree-sitter-hl-face:booolean)
                     ("destructuring" 'tree-sitter-hl-face:jsx-attribute)
-                    ("ternary" 'tree-sitter-hl-face:jsx-attribute)
+                    ("ternary" 'tree-sitter-hl-face:keyword)
+                    ("not-operator" 'tree-sitter-hl-face:not-operator)
                     )))
   (custom-set-faces!
     `(tree-sitter-hl-face:number :foreground  ,(doom-color 'orange) :weight bold)
@@ -258,16 +266,18 @@
 (setq prettier-js-show-errors nil)
 
 
-(setq idle-update-delay 0.1)
-(setq lazy-motion-mode t)
-(setq resdisplay-dont-pause t)
 
-(after! doom-modeline
-  (setq doom-modeline-icon nil))
 
-(use-package! lsp-tailwindcss
-  :after lsp-mode
-  :init
-  (setq lsp-tailwindcss-add-on-mode t)
-  (setq lsp-tailwindcss-server-path "/home/rylan/.nvm/versions/node/v22.11.0/bin/tailwindcss-language-server")
-  )
+;; (after! doom-modeline
+;;   (setq doom-modeline-icon nil))
+
+;; (use-package! lsp-tailwindcss
+;;   :after lsp-mode
+;;   :init
+;;   (setq lsp-tailwindcss-add-on-mode t)
+;;   (setq lsp-tailwindcss-server-path "/home/rylan/.nvm/versions/node/v22.11.0/bin/tailwindcss-language-server")
+;;   )
+
+
+(setq-default cursor-type 'bar)
+
