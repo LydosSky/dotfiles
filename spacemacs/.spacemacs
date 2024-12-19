@@ -46,7 +46,7 @@ This function should only modify configuration layer settings."
      (multiple-cursors :variables
                        multiple-cursors-backend 'mc)
      (ivy :variables
-          ivy-height 5
+          ivy-height 10
           ivy-ignore-buffers '("\\`\\*.*\\*\\'")
           )
 
@@ -83,7 +83,6 @@ This function should only modify configuration layer settings."
      theming
      )
 
-
    ;; List of additional packages that will be installed without being wrapped
    ;; in a layer (generally the packages are installed only and should still be
    ;; loaded using load/require/use-package in the user-config section below in
@@ -92,14 +91,16 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(doom-themes
+   dotspacemacs-additional-packages '(rainbow-mode
+                                      sqlite3
+                                      doom-themes
                                       lsp-tailwindcss)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(rainbow-delimiters)
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -606,6 +607,7 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+
   )
 
 
@@ -627,64 +629,85 @@ before packages are loaded."
   (add-hook 'web-mode-hook 'prettier-js-mode)
   (add-hook 'css-mode-hook 'prettier-js-mode)
   (setq prettier-js-show-errors nil)
-
-
-  (defun get-doom-one-light-palette ()
-    "Return the palette for the `doom-one-light` theme as a hash table."
+  (setq evil-emacs-state-cursor '(bar))
+  (defvar doom-one-light-palette
     (let ((palette (make-hash-table :test 'equal)))
       (dolist (color
-               '(("bg"         "#fafafa")
-                 ("fg"         "#383a42")
-                 ("bg-alt"     "#f0f0f0")
-                 ("fg-alt"     "#c6c7c7")
-                 ("base0"      "#f0f0f0")
-                 ("base1"      "#e7e7e7")
-                 ("base2"      "#dfdfdf")
-                 ("base3"      "#c6c7c7")
-                 ("base4"      "#9ca0a4")
-                 ("base5"      "#383a42")
-                 ("base6"      "#202328")
-                 ("base7"      "#1c1f24")
-                 ("base8"      "#1b2229")
-                 ("grey"       "#9ca0a4")
-                 ("red"        "#e45649")
-                 ("orange"     "#da8548")
-                 ("green"      "#50a14f")
-                 ("teal"       "#4db5bd")
-                 ("yellow"     "#986801")
-                 ("blue"       "#4078f2")
-                 ("dark-blue"  "#a0bcf8")
-                 ("magenta"    "#a626a4")
-                 ("violet"     "#b751b6")
-                 ("cyan"       "#0184bc")
-                 ("dark-cyan"  "#005478")))
-        (puthash (car color) (cadr color) palette))
-      palette))
+               '((bg         . "#fafafa")
+                 (fg         . "#383a42")
+                 (bg-alt     . "#f0f0f0")
+                 (fg-alt     . "#c6c7c7")
+                 (base0      . "#f0f0f0")
+                 (base1      . "#e7e7e7")
+                 (base2      . "#dfdfdf")
+                 (base3      . "#c6c7c7")
+                 (base4      . "#9ca0a4")
+                 (base5      . "#383a42")
+                 (base6      . "#202328")
+                 (base7      . "#1c1f24")
+                 (base8      . "#1b2229")
+                 (grey       . "#9ca0a4")
+                 (red        . "#e45649")
+                 (orange     . "#da8548")
+                 (green      . "#50a14f")
+                 (teal       . "#4db5bd")
+                 (yellow     . "#986801")
+                 (blue       . "#4078f2")
+                 (dark-blue  . "#a0bcf8")
+                 (magenta    . "#a626a4")
+                 (violet     . "#b751b6")
+                 (cyan       . "#0184bc")
+                 (dark-cyan  . "#005478")))
+        (puthash (car color) (cdr color) palette))
+      palette)
+    "Cached palette for the `doom-one-light` theme.")
+
+  (defun doom-color (color)
+    "Retrieve the hex value of COLOR (a symbol) from the `doom-one-light` palette."
+    (gethash color doom-one-light-palette))
 
   (defface tree-sitter-hl-face:jsx-component-tag
-    `((t :foreground "#986801"))
+    `((t :foreground ,(doom-color 'yellow)))
     "Face for JSX tags."
     :group 'tree-sitter-hl-faces)
 
   (defface tree-sitter-hl-face:jsx-html-tag
-    `((t :foreground "#0184bc"))
+    `((t :foreground ,(doom-color 'cyan)))
     "Face for JSX html tags."
     :group 'tree-sitter-hl-faces)
 
   (defface tree-sitter-hl-face:jsx-attribute
-    `((t :foreground "#e45649"))
+    `((t :foreground ,(doom-color 'red)))
     "Face for JSX attributes."
     :group 'tree-sitter-hl-faces)
 
   (defface tree-sitter-hl-face:jsx-text
-    `((t :foreground "#383a42"))
+    `((t :foreground ,(doom-color 'base6)))
     "Face for JSX text."
     :group 'tree-sitter-hl-faces)
 
   (defface tree-sitter-hl-face:jsx-delimiter
-    `((t :foreground "#383a42")) ; Slightly darkened yellow
+    `((t :foreground ,(doom-darken (doom-color 'fg) .25)))
     "Face for JSX delimiter (<,  />, >)"
     :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:jsx-bracket
+    `((t :foreground ,(doom-color 'teal) :weight bold))
+    "Faces for JSX brackets {  } "
+    :group 'tree-sitter-hl-faces)
+
+
+  (defface tree-sitter-hl-face:booolean
+    `((t :foreground ,(doom-color 'orange) :weight bold))
+    "Faces for Boolean values true false "
+    :group 'tree-sitter-hl-faces)
+
+  (defface tree-sitter-hl-face:not-operator
+    `((t :foreground ,(doom-color 'red) :weight bold))
+    "Faces for ! (not) logic"
+    :group 'tree-sitter-hl-faces)
+
+
 
   (tree-sitter-hl-add-patterns
       'javascript
@@ -736,7 +759,33 @@ before packages are loaded."
       (jsx_attribute
        (property_identifier) @jsx-attribute)
 
-      (jsx_text) @jsx-text)
+      (true) @boolean
+      (false) @boolean
+
+      (unary_expression
+       operator: "!" @not-operator)
+
+
+      (jsx_text) @jsx-text
+
+      (function_declaration
+       (formal_parameters
+        (object_pattern
+         (shorthand_property_identifier_pattern) @destructuring)))
+
+      (arrow_function
+       (formal_parameters
+        (object_pattern
+         (shorthand_property_identifier_pattern) @destructuring)))
+
+      (jsx_expression
+       "{" @jsx-bracket
+       "}" @jsx-bracket)
+
+      (ternary_expression
+       "?" @ternary
+       ":" @ternary)
+      )
     )
 
   (add-function :before-until tree-sitter-hl-face-mapping-function
@@ -747,27 +796,68 @@ before packages are loaded."
                     ("jsx-attribute" 'tree-sitter-hl-face:jsx-attribute)
                     ("jsx-text" 'tree-sitter-hl-face:jsx-text)
                     ("jsx-delimiter" 'tree-sitter-hl-face:jsx-delimiter)
+                    ("jsx-bracket" 'tree-sitter-hl-face:jsx-bracket)
+                    ("boolean" 'tree-sitter-hl-face:booolean)
+                    ("destructuring" 'tree-sitter-hl-face:jsx-attribute)
+                    ("ternary" 'tree-sitter-hl-face:keyword)
+                    ("not-operator" 'tree-sitter-hl-face:not-operator)
                     )))
 
+
+  ;; (custom-set-faces
+  ;;  '(tree-sitter-hl-face:number ((t (:foreground "#da8548" :weight bold))))
+  ;;  '(tree-sitter-hl-face:keyword ((t (:foreground "#a626a4"))))
+  ;;  '(tree-sitter-hl-face:method ((t (:foreground "#4078f2"))))
+  ;;  '(tree-sitter-hl-face:function ((t (:foreground "#4078f2"))))
+  ;;  '(tree-sitter-hl-face:variable ((t (:foreground "#e45649"))))
+  ;;  '(tree-sitter-hl-face:variable.builtin ((t (:foreground "#da8548"))))
+  ;;  '(tree-sitter-hl-face:constant ((t (:foreground "#e45649")))))
+
   (custom-set-faces
-   '(tree-sitter-hl-face:number ((t (:foreground "#da8548" :weight bold))))
-   '(tree-sitter-hl-face:keyword ((t (:foreground "#a626a4"))))
-   '(tree-sitter-hl-face:method ((t (:foreground "#4078f2"))))
-   '(tree-sitter-hl-face:function ((t (:foreground "#4078f2"))))
-   '(tree-sitter-hl-face:variable ((t (:foreground "#e45649"))))
-   '(tree-sitter-hl-face:variable.builtin ((t (:foreground "#da8548"))))
-   '(tree-sitter-hl-face:constant ((t (:foreground "#e45649")))))
+   `(tree-sitter-hl-face:number :foreground  ,(doom-color 'orange) :weight bold)
+   `(tree-sitter-hl-face:operator :foreground ,(doom-color 'fg))
+   `(tree-sitter-hl-face:method :foreground  ,(doom-color 'blue))
+   `(tree-sitter-hl-face:function :foreground ,(doom-color 'blue))
+   `(tree-sitter-hl-face:constant :foreground ,(doom-color 'red))
+   `(tree-sitter-hl-face:keyword :foreground ,(doom-color 'magenta))
+   `(tree-sitter-hl-face:string.special :foreground ,(doom-color 'blue))
+   )
+  ;; (use-package lsp-tailwindcss
+  ;;   :after lsp-mode
+  ;;   :init
+  ;;   (setq lsp-tailwindcss-add-on-mode t)
+  ;;   (setq lsp-tailwindcss-server-path "/home/rylan/.nvm/versions/node/v22.11.0/bin/tailwindcss-language-server")
+  ;;   )
 
-  (use-package lsp-tailwindcss
-    :after lsp-mode
-    :init
-    (setq lsp-tailwindcss-add-on-mode t)
-    (setq lsp-tailwindcss-server-path "/home/rylan/.nvm/versions/node/v22.11.0/bin/tailwindcss-language-server")
-    )
 
-
+  (kill-buffer "*spacemacs*")
   )
 
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
+(defun dotspacemacs/emacs-custom-settings ()
+  "Emacs custom settings.
+This is an auto-generated function, do not modify its content directly, use
+Emacs customize menu instead.
+This function is called at the very end of Spacemacs initialization."
+  (custom-set-variables
+   ;; custom-set-variables was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(custom-safe-themes
+     '("9f297216c88ca3f47e5f10f8bd884ab24ac5bc9d884f0f23589b0a46a608fe14" "2721b06afaf1769ef63f942bf3e977f208f517b187f2526f0e57c1bd4a000350" default)))
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(tree-sitter-hl-face:constant ((t (:foreground "#e45649"))))
+   '(tree-sitter-hl-face:function ((t (:foreground "#4078f2"))))
+   '(tree-sitter-hl-face:keyword ((t (:foreground "#a626a4"))))
+   '(tree-sitter-hl-face:method ((t (:foreground "#4078f2"))))
+   '(tree-sitter-hl-face:number ((t (:foreground "#da8548" :weight bold))))
+   '(tree-sitter-hl-face:variable ((t (:foreground "#e45649"))))
+   '(tree-sitter-hl-face:variable.builtin ((t (:foreground "#da8548")))))
+  )
