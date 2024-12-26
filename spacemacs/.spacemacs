@@ -45,11 +45,7 @@ This function should only modify configuration layer settings."
      git
      (multiple-cursors :variables
                        multiple-cursors-backend 'mc)
-     (ivy :variables
-          ivy-height 10
-          ivy-ignore-buffers '("\\`\\*.*\\*\\'")
-          )
-
+     compleseus
      (lsp :variables
           lsp-headerline-breadcrumb-enable nil
           lsp-ui-sideline-enable nil)
@@ -271,7 +267,7 @@ It should only modify the values of Spacemacs settings."
    ;; refer to the DOCUMENTATION.org for more info on how to create your own
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
-   dotspacemacs-mode-line-theme '(spacemacs :separator wave :separator-scale 1.5)
+   dotspacemacs-mode-line-theme '(doom)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
@@ -282,8 +278,8 @@ It should only modify the values of Spacemacs settings."
    ;; fixed-pitch faces. The `:size' can be specified as
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
-   dotspacemacs-default-font '("Source Code Pro"
-                               :size 10.0
+   dotspacemacs-default-font '("FiraCode Nerd Font"
+                               :size 13.0
                                :weight normal
                                :width normal)
 
@@ -299,7 +295,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; The leader key accessible in `emacs state' and `insert state'
    ;; (default "M-m")
-   dotspacemacs-emacs-leader-key "C-c"
+   dotspacemacs-emacs-leader-key "M-m"
 
    ;; Major mode leader key is a shortcut key which is the equivalent of
    ;; pressing `<leader> m`. Set it to `nil` to disable it. (default ",")
@@ -804,31 +800,20 @@ before packages are loaded."
                     )))
 
 
-  ;; (custom-set-faces
-  ;;  '(tree-sitter-hl-face:number ((t (:foreground "#da8548" :weight bold))))
-  ;;  '(tree-sitter-hl-face:keyword ((t (:foreground "#a626a4"))))
-  ;;  '(tree-sitter-hl-face:method ((t (:foreground "#4078f2"))))
-  ;;  '(tree-sitter-hl-face:function ((t (:foreground "#4078f2"))))
-  ;;  '(tree-sitter-hl-face:variable ((t (:foreground "#e45649"))))
-  ;;  '(tree-sitter-hl-face:variable.builtin ((t (:foreground "#da8548"))))
-  ;;  '(tree-sitter-hl-face:constant ((t (:foreground "#e45649")))))
-
   (custom-set-faces
-   `(tree-sitter-hl-face:number :foreground  ,(doom-color 'orange) :weight bold)
-   `(tree-sitter-hl-face:operator :foreground ,(doom-color 'fg))
-   `(tree-sitter-hl-face:method :foreground  ,(doom-color 'blue))
-   `(tree-sitter-hl-face:function :foreground ,(doom-color 'blue))
-   `(tree-sitter-hl-face:constant :foreground ,(doom-color 'red))
-   `(tree-sitter-hl-face:keyword :foreground ,(doom-color 'magenta))
-   `(tree-sitter-hl-face:string.special :foreground ,(doom-color 'blue))
-   )
+   `(tree-sitter-hl-face:number ((t (:foreground ,(doom-color 'orange) :weight bold))))
+   `(tree-sitter-hl-face:keyword ((t (:foreground ,(doom-color 'magenta)))))
+   `(tree-sitter-hl-face:method ((t (:foreground ,(doom-color 'blue)))))
+   `(tree-sitter-hl-face:function ((t (:foreground ,(doom-color 'blue)))))
+   `(tree-sitter-hl-face:operator ((t (:foreground ,(doom-color 'fg)))))
+   `(tree-sitter-hl-face:constant ((t (:foreground ,(doom-color 'red))))))
+
   ;; (use-package lsp-tailwindcss
   ;;   :after lsp-mode
   ;;   :init
   ;;   (setq lsp-tailwindcss-add-on-mode t)
   ;;   (setq lsp-tailwindcss-server-path "/home/rylan/.nvm/versions/node/v22.11.0/bin/tailwindcss-language-server")
   ;;   )
-
 
   (kill-buffer "*spacemacs*")
   )
