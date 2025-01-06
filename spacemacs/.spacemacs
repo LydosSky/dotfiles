@@ -32,7 +32,7 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(
+   '(toml
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
@@ -52,6 +52,7 @@ This function should only modify configuration layer settings."
      markdown
      syntax-checking
      (version-control :variables
+                      version-control-diff-tool 'git-gutter
                       version-control-global-margin t)
      (tree-sitter :variables
                   tree-sitter-syntax-highlight-enable t
@@ -61,6 +62,7 @@ This function should only modify configuration layer settings."
                  javascript-fmt-on-save t
                  javascript-fmt-tool 'prettier
                  js2-highlight-level 0
+                 js-indent-level 2
                  )
      (html :variables
            css-enable-lsp t
@@ -77,6 +79,11 @@ This function should only modify configuration layer settings."
               ibuffer-group-buffers-by 'projects)
      react
      theming
+     (shell :variables
+            shell-default-shell 'vterm)
+     (sql :variables
+          sql-capitalize-keywords t
+          sql-indent t)
      )
 
    ;; List of additional packages that will be installed without being wrapped
@@ -89,6 +96,7 @@ This function should only modify configuration layer settings."
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(rainbow-mode
                                       sqlite3
+                                      sql-indent
                                       doom-themes
                                       lsp-tailwindcss)
 
@@ -278,7 +286,7 @@ It should only modify the values of Spacemacs settings."
    ;; fixed-pitch faces. The `:size' can be specified as
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
-   dotspacemacs-default-font '("FiraCode Nerd Font"
+   dotspacemacs-default-font '("Hasklug Nerd Font Mono"
                                :size 13.0
                                :weight normal
                                :width normal)
@@ -815,7 +823,7 @@ before packages are loaded."
   ;;   (setq lsp-tailwindcss-server-path "/home/rylan/.nvm/versions/node/v22.11.0/bin/tailwindcss-language-server")
   ;;   )
 
-  (kill-buffer "*spacemacs*")
+  (switch-to-buffer "*scratch*")
   )
 
 
@@ -832,7 +840,9 @@ This function is called at the very end of Spacemacs initialization."
    ;; Your init file should contain only one such instance.
    ;; If there is more than one, they won't work right.
    '(custom-safe-themes
-     '("9f297216c88ca3f47e5f10f8bd884ab24ac5bc9d884f0f23589b0a46a608fe14" "2721b06afaf1769ef63f942bf3e977f208f517b187f2526f0e57c1bd4a000350" default)))
+     '("2b20b4633721cc23869499012a69894293d49e147feeb833663fdc968f240873" "f5f80dd6588e59cfc3ce2f11568ff8296717a938edd448a947f9823a4e282b66" "9f297216c88ca3f47e5f10f8bd884ab24ac5bc9d884f0f23589b0a46a608fe14" "2721b06afaf1769ef63f942bf3e977f208f517b187f2526f0e57c1bd4a000350" default))
+   '(package-selected-packages
+     '(toml-mode sql-indent sqlup-mode eat esh-help eshell-prompt-extras eshell-z multi-term multi-vterm xref shell-pop terminal-here vterm yasnippet-snippets ws-butler writeroom-mode winum window-purpose which-key wgrep web-mode web-beautify vundo volatile-highlights vim-powerline vi-tilde-fringe vertico unfill undo-fu-session undo-fu treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired tree-sitter-langs toc-org term-cursor tagedit symon symbol-overlay string-inflection string-edit-at-point sqlite3 spacemacs-whitespace-cleanup spacemacs-purpose-popwin space-doc smeargle slim-mode scss-mode sass-mode rjsx-mode restart-emacs request rainbow-mode quickrun pug-mode prettier-js popwin pcre2el password-generator paradox overseer org-superstar orderless open-junk-file npm-mode nodejs-repl nameless mwim multi-line markdown-toc marginalia macrostep lsp-ui lsp-treemacs lsp-tailwindcss lsp-origami lorem-ipsum livid-mode link-hint json-reformat json-navigator json-mode js2-refactor js-doc inspector info+ indent-guide impatient-mode ibuffer-projectile hybrid-mode hungry-delete holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-make google-translate golden-ratio gitignore-templates git-timemachine git-modes git-messenger git-link gh-md flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr emmet-mode embark-consult elisp-slime-nav elisp-demos elisp-def editorconfig dumb-jump dtrt-indent drag-stuff dotenv-mode doom-themes doom-modeline disable-mouse dired-quick-sort diminish diff-hl devdocs define-word consult-yasnippet consult-lsp compleseus-spacemacs-help company-web company-statistics company-quickhelp column-enforce-mode code-review cliphist clean-aindent-mode centered-cursor-mode browse-at-remote auto-yasnippet auto-highlight-symbol auto-compile async all-the-icons aggressive-indent ace-link)))
   (custom-set-faces
    ;; custom-set-faces was added by Custom.
    ;; If you edit it by hand, you could mess it up, so be careful.
@@ -843,6 +853,7 @@ This function is called at the very end of Spacemacs initialization."
    '(tree-sitter-hl-face:keyword ((t (:foreground "#a626a4"))))
    '(tree-sitter-hl-face:method ((t (:foreground "#4078f2"))))
    '(tree-sitter-hl-face:number ((t (:foreground "#da8548" :weight bold))))
+   '(tree-sitter-hl-face:operator ((t (:foreground "#383a42"))))
    '(tree-sitter-hl-face:variable ((t (:foreground "#e45649"))))
    '(tree-sitter-hl-face:variable.builtin ((t (:foreground "#da8548")))))
   )

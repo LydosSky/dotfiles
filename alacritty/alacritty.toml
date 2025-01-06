@@ -1,0 +1,28 @@
+[terminal.shell]
+program = "tmux"
+args = [ "new-session", "-A", "-s", "master"]
+
+[window]
+dynamic_padding = true
+  [window.padding]
+  x = 0
+  y = 0
+
+[font]
+size = 13.5
+  [font.normal]
+  family = "Hasklug Nerd Font Mono"
+
+[cursor.style]
+shape = "Beam"
+blinking = "Always"
+
+[selection]
+save_to_clipboard = true
+
+[general]
+import = [
+  "./one_light.toml"
+]
+
+[terminal]
