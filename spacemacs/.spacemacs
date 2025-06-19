@@ -32,27 +32,34 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(toml
-     ;; ----------------------------------------------------------------
+   '(;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
      ;; ----------------------------------------------------------------
+     (org :variables
+          ;; org-enable-modern-support t
+          org-enable-appear-support t
+          org-enable-verb-support t
+          org-startup-indented t)
      better-defaults
+     ivy
      (xclipboard :variables
                  xclipboard-enable-cliphist t)
      emacs-lisp
      git
      (multiple-cursors :variables
                        multiple-cursors-backend 'mc)
-     compleseus
      (lsp :variables
+          lsp-ui-doc-enable t
           lsp-headerline-breadcrumb-enable nil
-          lsp-ui-sideline-enable nil)
+          lsp-ui-sideline-enable nil
+          lsp-keymap-prefix "C-c c")
      markdown
      syntax-checking
      (version-control :variables
-                      version-control-diff-tool 'git-gutter
+                      version-control-diff-side 'right
+                      version-control-diff-tool 'diff-hl
                       version-control-global-margin t)
      (tree-sitter :variables
                   tree-sitter-syntax-highlight-enable t
@@ -69,6 +76,7 @@ This function should only modify configuration layer settings."
            html-enable-lsp t
            web-fmt-tool 'prettier)
      prettier
+     restclient
      (auto-completion :variables
                       auto-completion-enable-snippets-in-popup t
                       auto-completion-enable-help-tooltip t
@@ -84,6 +92,10 @@ This function should only modify configuration layer settings."
      (sql :variables
           sql-capitalize-keywords t
           sql-indent t)
+     (c-c++ :variables
+            c-c++-backend 'lsp-clangd
+            c-c++-enable-clang-format-on-save t)
+     toml
      )
 
    ;; List of additional packages that will be installed without being wrapped
@@ -94,11 +106,14 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(rainbow-mode
-                                      sqlite3
-                                      sql-indent
-                                      doom-themes
-                                      lsp-tailwindcss)
+   dotspacemacs-additional-packages '(compile-angel
+                                      rainbow-mode
+                                      base16-theme
+                                      lsp-tailwindcss
+                                      (prisma-mode :location (recipe
+                                                              :fetcher github
+                                                              :repo "pimeys/emacs-prisma-mode"))
+                                      )
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -266,7 +281,7 @@ It should only modify the values of Spacemacs settings."
    ;; package can be defined with `:package', or a theme can be defined with
    ;; `:location' to download the theme package, refer the themes section in
    ;; DOCUMENTATION.org for the full theme specifications.
-   dotspacemacs-themes '(doom-one-light)
+   dotspacemacs-themes '(base16-one-light)
 
    ;; Set the theme for the Spaceline. Supported themes are `spacemacs',
    ;; `all-the-icons', `custom', `doom', `vim-powerline' and `vanilla'. The
@@ -275,18 +290,20 @@ It should only modify the values of Spacemacs settings."
    ;; refer to the DOCUMENTATION.org for more info on how to create your own
    ;; spaceline theme. Value can be a symbol or list with additional properties.
    ;; (default '(spacemacs :separator wave :separator-scale 1.5))
-   dotspacemacs-mode-line-theme '(doom)
+   ;; dotspacemacs-mode-line-theme '(doom)
+   dotspacemacs-mode-line-theme '(spacemacs)
 
    ;; If non-nil the cursor color matches the state color in GUI Emacs.
    ;; (default t)
    dotspacemacs-colorize-cursor-according-to-state t
+
 
    ;; Default font or prioritized list of fonts. This setting has no effect when
    ;; running Emacs in terminal. The font set here will be used for default and
    ;; fixed-pitch faces. The `:size' can be specified as
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
-   dotspacemacs-default-font '("Hasklug Nerd Font Mono"
+   dotspacemacs-default-font '("Roboto Mono"
                                :size 13.0
                                :weight normal
                                :width normal)
@@ -410,7 +427,7 @@ It should only modify the values of Spacemacs settings."
    ;; If non-nil the frame is maximized when Emacs starts up.
    ;; Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil.
    ;; (default t) (Emacs 24.4+ only)
-   dotspacemacs-maximized-at-startup t
+   dotspacemacs-maximized-at-startup nil
 
    ;; If non-nil the frame is undecorated when Emacs starts up. Combine this
    ;; variable with `dotspacemacs-maximized-at-startup' to obtain fullscreen
@@ -420,7 +437,7 @@ It should only modify the values of Spacemacs settings."
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
    ;; Transparency can be toggled through `toggle-transparency'. (default 90)
-   dotspacemacs-active-transparency 90
+   dotspacemacs-active-transparency 100
 
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's inactive or deselected.
@@ -430,7 +447,7 @@ It should only modify the values of Spacemacs settings."
    ;; A value from the range (0..100), in increasing opacity, which describes the
    ;; transparency level of a frame background when it's active or selected. Transparency
    ;; can be toggled through `toggle-background-transparency'. (default 90)
-   dotspacemacs-background-transparency 90
+   dotspacemacs-background-transparency 100
 
    ;; If non-nil show the titles of transient states. (default t)
    dotspacemacs-show-transient-state-title t
@@ -450,7 +467,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; Show the scroll bar while scrolling. The auto hide time can be configured
    ;; by setting this variable to a number. (default t)
-   dotspacemacs-scroll-bar-while-scrolling t
+   dotspacemacs-scroll-bar-while-scrolling nil
 
    ;; Control line numbers activation.
    ;; If set to `t', `relative' or `visual' then line numbers are enabled in all
@@ -497,7 +514,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil, start an Emacs server if one is not already running.
    ;; (default nil)
-   dotspacemacs-enable-server nil
+   dotspacemacs-enable-server t
 
    ;; Set the emacs server socket location.
    ;; If nil, uses whatever the Emacs default is, otherwise a directory path
@@ -561,7 +578,7 @@ It should only modify the values of Spacemacs settings."
    ;; which major modes have whitespace cleanup enabled or disabled
    ;; by default.
    ;; (default nil)
-   dotspacemacs-whitespace-cleanup nil
+   dotspacemacs-whitespace-cleanup 'all
 
    ;; If non-nil activate `clean-aindent-mode' which tries to correct
    ;; virtual indentation of simple modes. This can interfere with mode specific
@@ -611,7 +628,7 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-
+  (setq base16-theme-256-color-source 'colors)
   )
 
 
@@ -629,201 +646,211 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
-  (setq spaceline-window-number-p nil)
-  (add-hook 'web-mode-hook 'prettier-js-mode)
-  (add-hook 'css-mode-hook 'prettier-js-mode)
-  (setq prettier-js-show-errors nil)
-  (setq evil-emacs-state-cursor '(bar))
-  (defvar doom-one-light-palette
-    (let ((palette (make-hash-table :test 'equal)))
-      (dolist (color
-               '((bg         . "#fafafa")
-                 (fg         . "#383a42")
-                 (bg-alt     . "#f0f0f0")
-                 (fg-alt     . "#c6c7c7")
-                 (base0      . "#f0f0f0")
-                 (base1      . "#e7e7e7")
-                 (base2      . "#dfdfdf")
-                 (base3      . "#c6c7c7")
-                 (base4      . "#9ca0a4")
-                 (base5      . "#383a42")
-                 (base6      . "#202328")
-                 (base7      . "#1c1f24")
-                 (base8      . "#1b2229")
-                 (grey       . "#9ca0a4")
-                 (red        . "#e45649")
-                 (orange     . "#da8548")
-                 (green      . "#50a14f")
-                 (teal       . "#4db5bd")
-                 (yellow     . "#986801")
-                 (blue       . "#4078f2")
-                 (dark-blue  . "#a0bcf8")
-                 (magenta    . "#a626a4")
-                 (violet     . "#b751b6")
-                 (cyan       . "#0184bc")
-                 (dark-cyan  . "#005478")))
-        (puthash (car color) (cdr color) palette))
-      palette)
-    "Cached palette for the `doom-one-light` theme.")
+  (when (fboundp 'prettier-js-mode)
+    (defvar my-prettier-modes '(web-mode css-mode pug-mode prisma-mode))
+    (dolist (mode my-prettier-modes)
+      (add-hook (intern (concat (symbol-name mode) "-hook")) 'prettier-js-mode))
+    (setq prettier-js-show-errors nil))
+  (setq evil-emacs-state-cursor '(bar . 3))
+  (global-disable-mouse-mode)
+  (set-face-attribute 'cursor nil :background "#daa520")
+  ;; (defvar doom-one-light-palette
+  ;;   (let ((palette (make-hash-table :test 'equal)))
+  ;;     (dolist (color
+  ;;              '((bg         . "#fafafa")
+  ;;                (fg         . "#383a42")
+  ;;                (bg-alt     . "#f0f0f0")
+  ;;                (fg-alt     . "#c6c7c7")
+  ;;                (base0      . "#f0f0f0")
+  ;;                (base1      . "#e7e7e7")
+  ;;                (base2      . "#dfdfdf")
+  ;;                (base3      . "#c6c7c7")
+  ;;                (base4      . "#9ca0a4")
+  ;;                (base5      . "#383a42")
+  ;;                (base6      . "#202328")
+  ;;                (base7      . "#1c1f24")
+  ;;                (base8      . "#1b2229")
+  ;;                (grey       . "#9ca0a4")
+  ;;                (red        . "#e45649")
+  ;;                (orange     . "#da8548")
+  ;;                (green      . "#50a14f")
+  ;;                (teal       . "#4db5bd")
+  ;;                (yellow     . "#986801")
+  ;;                (blue       . "#4078f2")
+  ;;                (dark-blue  . "#a0bcf8")
+  ;;                (magenta    . "#a626a4")
+  ;;                (violet     . "#b751b6")
+  ;;                (cyan       . "#0184bc")
+  ;;                (dark-cyan  . "#005478")))
+  ;;       (puthash (car color) (cdr color) palette))
+  ;;     palette)
+  ;;   "Cached palette for the `doom-one-light` theme.")
 
-  (defun doom-color (color)
-    "Retrieve the hex value of COLOR (a symbol) from the `doom-one-light` palette."
-    (gethash color doom-one-light-palette))
+  ;; (defun doom-color (color)
+  ;;   "Retrieve the hex value of COLOR (a symbol) from the `doom-one-light` palette."
+  ;;   (gethash color doom-one-light-palette))
 
-  (defface tree-sitter-hl-face:jsx-component-tag
-    `((t :foreground ,(doom-color 'yellow)))
-    "Face for JSX tags."
-    :group 'tree-sitter-hl-faces)
+  ;; (defface tree-sitter-hl-face:jsx-component-tag
+  ;;   `((t :foreground ,(doom-color 'yellow)))
+  ;;   "Face for JSX tags."
+  ;;   :group 'tree-sitter-hl-faces)
 
-  (defface tree-sitter-hl-face:jsx-html-tag
-    `((t :foreground ,(doom-color 'cyan)))
-    "Face for JSX html tags."
-    :group 'tree-sitter-hl-faces)
+  ;; (defface tree-sitter-hl-face:jsx-html-tag
+  ;;   `((t :foreground ,(doom-color 'cyan)))
+  ;;   "Face for JSX html tags."
+  ;;   :group 'tree-sitter-hl-faces)
 
-  (defface tree-sitter-hl-face:jsx-attribute
-    `((t :foreground ,(doom-color 'red)))
-    "Face for JSX attributes."
-    :group 'tree-sitter-hl-faces)
+  ;; (defface tree-sitter-hl-face:jsx-attribute
+  ;;   `((t :foreground ,(doom-color 'red)))
+  ;;   "Face for JSX attributes."
+  ;;   :group 'tree-sitter-hl-faces)
 
-  (defface tree-sitter-hl-face:jsx-text
-    `((t :foreground ,(doom-color 'base6)))
-    "Face for JSX text."
-    :group 'tree-sitter-hl-faces)
+  ;; (defface tree-sitter-hl-face:jsx-text
+  ;;   `((t :foreground ,(doom-color 'base6)))
+  ;;   "Face for JSX text."
+  ;;   :group 'tree-sitter-hl-faces)
 
-  (defface tree-sitter-hl-face:jsx-delimiter
-    `((t :foreground ,(doom-darken (doom-color 'fg) .25)))
-    "Face for JSX delimiter (<,  />, >)"
-    :group 'tree-sitter-hl-faces)
+  ;; (defface tree-sitter-hl-face:jsx-delimiter
+  ;;   `((t :foreground ,(doom-darken (doom-color 'fg) .25)))
+  ;;   "Face for JSX delimiter (<,  />, >)"
+  ;;   :group 'tree-sitter-hl-faces)
 
-  (defface tree-sitter-hl-face:jsx-bracket
-    `((t :foreground ,(doom-color 'teal) :weight bold))
-    "Faces for JSX brackets {  } "
-    :group 'tree-sitter-hl-faces)
-
-
-  (defface tree-sitter-hl-face:booolean
-    `((t :foreground ,(doom-color 'orange) :weight bold))
-    "Faces for Boolean values true false "
-    :group 'tree-sitter-hl-faces)
-
-  (defface tree-sitter-hl-face:not-operator
-    `((t :foreground ,(doom-color 'red) :weight bold))
-    "Faces for ! (not) logic"
-    :group 'tree-sitter-hl-faces)
+  ;; (defface tree-sitter-hl-face:jsx-bracket
+  ;;   `((t :foreground ,(doom-color 'teal) :weight bold))
+  ;;   "Faces for JSX brackets {  } "
+  ;;   :group 'tree-sitter-hl-faces)
 
 
+  ;; (defface tree-sitter-hl-face:booolean
+  ;;   `((t :foreground ,(doom-color 'orange) :weight bold))
+  ;;   "Faces for Boolean values true false "
+  ;;   :group 'tree-sitter-hl-faces)
 
-  (tree-sitter-hl-add-patterns
-      'javascript
-    '((jsx_opening_element
-       "<" @jsx-delimiter
-       (identifier) @jsx-html-tag
-       (match? @jsx-html-tag "^[a-z]")
-       ">" @jsx-delimiter)
-
-      (jsx_closing_element
-       "</" @jsx-delimiter
-       (identifier) @jsx-html-tag
-       (match? @jsx-html-tag "^[a-z]")
-       ">" @jsx-delimiter)
-
-      (jsx_self_closing_element
-       "<" @jsx-delimiter
-       (identifier) @jsx-html-tag
-       (match? @jsx-html-tag "^[a-z]")
-       "/>" @jsx-delimiter)
-
-      ;; Component tags
-      (jsx_opening_element
-       "<" @jsx-delimiter
-       (identifier) @jsx-component-tag
-       (match? @jsx-component-tag "^[A-Z]")
-       ">" @jsx-delimiter)
-
-      (jsx_closing_element
-       "</" @jsx-delimiter
-       (identifier) @jsx-component-tag
-       (match? @jsx-component-tag "^[A-Z]")
-       ">" @jsx-delimiter)
-
-      (jsx_self_closing_element
-       "<" @jsx-delimiter
-       (identifier) @jsx-component-tag
-       (match? @jsx-component-tag "^[A-Z]")
-       "/>" @jsx-delimiter)
-
-      (jsx_opening_element
-       "<" @jsx-delimiter
-       ">" @jsx-delimiter)
-
-      (jsx_closing_element
-       "</" @jsx-delimiter
-       ">" @jsx-delimiter)
-
-      (jsx_attribute
-       (property_identifier) @jsx-attribute)
-
-      (true) @boolean
-      (false) @boolean
-
-      (unary_expression
-       operator: "!" @not-operator)
+  ;; (defface tree-sitter-hl-face:not-operator
+  ;;   `((t :foreground ,(doom-color 'red) :weight bold))
+  ;;   "Faces for ! (not) logic"
+  ;;   :group 'tree-sitter-hl-faces)
 
 
-      (jsx_text) @jsx-text
 
-      (function_declaration
-       (formal_parameters
-        (object_pattern
-         (shorthand_property_identifier_pattern) @destructuring)))
+  ;; (tree-sitter-hl-add-patterns
+  ;;     'javascript
+  ;;   '((jsx_opening_element
+  ;;      "<" @jsx-delimiter
+  ;;      (identifier) @jsx-html-tag
+  ;;      (match? @jsx-html-tag "^[a-z]")
+  ;;      ">" @jsx-delimiter)
 
-      (arrow_function
-       (formal_parameters
-        (object_pattern
-         (shorthand_property_identifier_pattern) @destructuring)))
+  ;;     (jsx_closing_element
+  ;;      "</" @jsx-delimiter
+  ;;      (identifier) @jsx-html-tag
+  ;;      (match? @jsx-html-tag "^[a-z]")
+  ;;      ">" @jsx-delimiter)
 
-      (jsx_expression
-       "{" @jsx-bracket
-       "}" @jsx-bracket)
+  ;;     (jsx_self_closing_element
+  ;;      "<" @jsx-delimiter
+  ;;      (identifier) @jsx-html-tag
+  ;;      (match? @jsx-html-tag "^[a-z]")
+  ;;      "/>" @jsx-delimiter)
 
-      (ternary_expression
-       "?" @ternary
-       ":" @ternary)
-      )
-    )
+  ;;     ;; Component tags
+  ;;     (jsx_opening_element
+  ;;      "<" @jsx-delimiter
+  ;;      (identifier) @jsx-component-tag
+  ;;      (match? @jsx-component-tag "^[A-Z]")
+  ;;      ">" @jsx-delimiter)
 
-  (add-function :before-until tree-sitter-hl-face-mapping-function
-                (lambda (capture-name)
-                  (pcase capture-name
-                    ("jsx-html-tag" 'tree-sitter-hl-face:jsx-html-tag)
-                    ("jsx-component-tag" 'tree-sitter-hl-face:jsx-component-tag)
-                    ("jsx-attribute" 'tree-sitter-hl-face:jsx-attribute)
-                    ("jsx-text" 'tree-sitter-hl-face:jsx-text)
-                    ("jsx-delimiter" 'tree-sitter-hl-face:jsx-delimiter)
-                    ("jsx-bracket" 'tree-sitter-hl-face:jsx-bracket)
-                    ("boolean" 'tree-sitter-hl-face:booolean)
-                    ("destructuring" 'tree-sitter-hl-face:jsx-attribute)
-                    ("ternary" 'tree-sitter-hl-face:keyword)
-                    ("not-operator" 'tree-sitter-hl-face:not-operator)
-                    )))
+  ;;     (jsx_closing_element
+  ;;      "</" @jsx-delimiter
+  ;;      (identifier) @jsx-component-tag
+  ;;      (match? @jsx-component-tag "^[A-Z]")
+  ;;      ">" @jsx-delimiter)
+
+  ;;     (jsx_self_closing_element
+  ;;      "<" @jsx-delimiter
+  ;;      (identifier) @jsx-component-tag
+  ;;      (match? @jsx-component-tag "^[A-Z]")
+  ;;      "/>" @jsx-delimiter)
+
+  ;;     (jsx_opening_element
+  ;;      "<" @jsx-delimiter
+  ;;      ">" @jsx-delimiter)
+
+  ;;     (jsx_closing_element
+  ;;      "</" @jsx-delimiter
+  ;;      ">" @jsx-delimiter)
+
+  ;;     (jsx_attribute
+  ;;      (property_identifier) @jsx-attribute)
+
+  ;;     (true) @boolean
+  ;;     (false) @boolean
+
+  ;;     (unary_expression
+  ;;      operator: "!" @not-operator)
 
 
-  (custom-set-faces
-   `(tree-sitter-hl-face:number ((t (:foreground ,(doom-color 'orange) :weight bold))))
-   `(tree-sitter-hl-face:keyword ((t (:foreground ,(doom-color 'magenta)))))
-   `(tree-sitter-hl-face:method ((t (:foreground ,(doom-color 'blue)))))
-   `(tree-sitter-hl-face:function ((t (:foreground ,(doom-color 'blue)))))
-   `(tree-sitter-hl-face:operator ((t (:foreground ,(doom-color 'fg)))))
-   `(tree-sitter-hl-face:constant ((t (:foreground ,(doom-color 'red))))))
+  ;;     (jsx_text) @jsx-text
 
-  ;; (use-package lsp-tailwindcss
-  ;;   :after lsp-mode
-  ;;   :init
-  ;;   (setq lsp-tailwindcss-add-on-mode t)
-  ;;   (setq lsp-tailwindcss-server-path "/home/rylan/.nvm/versions/node/v22.11.0/bin/tailwindcss-language-server")
+  ;;     (function_declaration
+  ;;      (formal_parameters
+  ;;       (object_pattern
+  ;;        (shorthand_property_identifier_pattern) @destructuring)))
+
+  ;;     (arrow_function
+  ;;      (formal_parameters
+  ;;       (object_pattern
+  ;;        (shorthand_property_identifier_pattern) @destructuring)))
+
+  ;;     (jsx_expression
+  ;;      "{" @jsx-bracket
+  ;;      "}" @jsx-bracket)
+
+  ;;     (ternary_expression
+  ;;      "?" @ternary
+  ;;      ":" @ternary)
+  ;;     )
   ;;   )
 
-  (switch-to-buffer "*scratch*")
+  ;; (add-function :before-until tree-sitter-hl-face-mapping-function
+  ;;               (lambda (capture-name)
+  ;;                 (pcase capture-name
+  ;;                   ("jsx-html-tag" 'tree-sitter-hl-face:jsx-html-tag)
+  ;;                   ("jsx-component-tag" 'tree-sitter-hl-face:jsx-component-tag)
+  ;;                   ("jsx-attribute" 'tree-sitter-hl-face:jsx-attribute)
+  ;;                   ("jsx-text" 'tree-sitter-hl-face:jsx-text)
+  ;;                   ("jsx-delimiter" 'tree-sitter-hl-face:jsx-delimiter)
+  ;;                   ("jsx-bracket" 'tree-sitter-hl-face:jsx-bracket)
+  ;;                   ("boolean" 'tree-sitter-hl-face:booolean)
+  ;;                   ("destructuring" 'tree-sitter-hl-face:jsx-attribute)
+  ;;                   ("ternary" 'tree-sitter-hl-face:keyword)
+  ;;                   ("not-operator" 'tree-sitter-hl-face:not-operator)
+  ;;                   )))
+
+
+  ;; (custom-set-faces
+  ;;  `(tree-sitter-hl-face:number ((t (:foreground  ,(doom-color 'orange) :weight bold))))
+  ;;  `(tree-sitter-hl-face:operator ((t (:foreground ,(doom-color 'fg)))))
+  ;;  `(tree-sitter-hl-face:method ((t (:foreground  ,(doom-color 'blue)))))
+  ;;  `(tree-sitter-hl-face:function ((t (:foreground ,(doom-color 'blue)))))
+  ;;  `(tree-sitter-hl-face:constant ((t (:foreground ,(doom-color 'red)))))
+  ;;  `(tree-sitter-hl-face:keyword ((t (:foreground ,(doom-color 'magenta)))))
+  ;;  `(tree-sitter-hl-face:string.special ((t (:foreground ,(doom-color 'blue)))))
+  ;;  `(tree-sitter-hl-face:variable.parameter ((t (:foreground ,(doom-color 'red))))))
+
+  (with-eval-after-load 'spaceline
+    (setq powerline-default-separator nil)
+    (setq spaceline-minor-modes-p nil)
+    (setq spaceline-buffer-encoding-p nil)
+    (setq spaceline-hud-p nil)
+    (setq spaceline-buffer-size-p nil)
+    (setq spaceline-buffer-position-p nil)
+    (setq spaceline-buffer-encoding-abbrev-p nil)
+    (setq spaceline-window-number-p nil)
+    (setq spaceline-workspace-number-p nil)
+    (setq spaceline-evil-state-p nil)
+    )
+
   )
 
 
@@ -840,20 +867,13 @@ This function is called at the very end of Spacemacs initialization."
    ;; Your init file should contain only one such instance.
    ;; If there is more than one, they won't work right.
    '(custom-safe-themes
-     '("2b20b4633721cc23869499012a69894293d49e147feeb833663fdc968f240873" "f5f80dd6588e59cfc3ce2f11568ff8296717a938edd448a947f9823a4e282b66" "9f297216c88ca3f47e5f10f8bd884ab24ac5bc9d884f0f23589b0a46a608fe14" "2721b06afaf1769ef63f942bf3e977f208f517b187f2526f0e57c1bd4a000350" default))
+     '("3d9512412d5874972f9142a6c230258e33ff1168d1d21aa68d7a568f328a400b" "d1d0bd3d8be9acb87bbdcd1ed3f8d2597403db3f53a9d79560e0213d20b8d780" "882d6a5981fd85d9f987d31623e25e69b8d5635a53ab442f1a51e7c252790320" "efaccb17b8cf2de777a2a9fc7f64f4cad1ea0317df3bdb0b72c3ac6c920491f9" "30d174000ea9cbddecd6cc695943afb7dba66b302a14f9db5dd65074e70cc744" "350fef8767e45b0f81dd54c986ee6854857f27067bac88d2b1c2a6fa7fecb522" "2b20b4633721cc23869499012a69894293d49e147feeb833663fdc968f240873" "f5f80dd6588e59cfc3ce2f11568ff8296717a938edd448a947f9823a4e282b66" "9f297216c88ca3f47e5f10f8bd884ab24ac5bc9d884f0f23589b0a46a608fe14" "2721b06afaf1769ef63f942bf3e977f208f517b187f2526f0e57c1bd4a000350" default))
    '(package-selected-packages
-     '(toml-mode sql-indent sqlup-mode eat esh-help eshell-prompt-extras eshell-z multi-term multi-vterm xref shell-pop terminal-here vterm yasnippet-snippets ws-butler writeroom-mode winum window-purpose which-key wgrep web-mode web-beautify vundo volatile-highlights vim-powerline vi-tilde-fringe vertico unfill undo-fu-session undo-fu treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired tree-sitter-langs toc-org term-cursor tagedit symon symbol-overlay string-inflection string-edit-at-point sqlite3 spacemacs-whitespace-cleanup spacemacs-purpose-popwin space-doc smeargle slim-mode scss-mode sass-mode rjsx-mode restart-emacs request rainbow-mode quickrun pug-mode prettier-js popwin pcre2el password-generator paradox overseer org-superstar orderless open-junk-file npm-mode nodejs-repl nameless mwim multi-line markdown-toc marginalia macrostep lsp-ui lsp-treemacs lsp-tailwindcss lsp-origami lorem-ipsum livid-mode link-hint json-reformat json-navigator json-mode js2-refactor js-doc inspector info+ indent-guide impatient-mode ibuffer-projectile hybrid-mode hungry-delete holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-make google-translate golden-ratio gitignore-templates git-timemachine git-modes git-messenger git-link gh-md flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr emmet-mode embark-consult elisp-slime-nav elisp-demos elisp-def editorconfig dumb-jump dtrt-indent drag-stuff dotenv-mode doom-themes doom-modeline disable-mouse dired-quick-sort diminish diff-hl devdocs define-word consult-yasnippet consult-lsp compleseus-spacemacs-help company-web company-statistics company-quickhelp column-enforce-mode code-review cliphist clean-aindent-mode centered-cursor-mode browse-at-remote auto-yasnippet auto-highlight-symbol auto-compile async all-the-icons aggressive-indent ace-link)))
+     '(company-restclient know-your-http-well ob-http ob-restclient restclient-helm helm restclient wfnames helm-core toml-mode sql-indent sqlup-mode eat esh-help eshell-prompt-extras eshell-z multi-term multi-vterm xref shell-pop terminal-here vterm yasnippet-snippets ws-butler writeroom-mode winum window-purpose which-key wgrep web-mode web-beautify vundo volatile-highlights vim-powerline vi-tilde-fringen vertico unfill undo-fu-session undo-fu treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired tree-sitter-langs toc-org term-cursor tagedit symon symbol-overlay string-inflection string-edit-at-point sqlite3 spacemacs-whitespace-cleanup spacemacs-purpose-popwin space-doc smeargle slim-mode scss-mode sass-mode rjsx-mode restart-emacs request rainbow-mode quickrun pug-mode prettier-js popwin pcre2el password-generator paradox overseer org-superstar orderless open-junk-file npm-mode nodejs-repl nameless mwim multi-line markdown-toc marginalia macrostep lsp-ui lsp-treemacs lsp-tailwindcss lsp-origami lorem-ipsum livid-mode link-hint json-reformat json-navigator json-mode js2-refactor js-doc inspector info+ indent-guide impatient-mode ibuffer-projectile hybrid-mode hungry-delete holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-make google-translate golden-ratio gitignore-templates git-timemachine git-modes git-messenger git-link gh-md flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-numbers evil-nerd-commenter evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-collection evil-cleverparens evil-args evil-anzu eval-sexp-fu emr emmet-mode embark-consult elisp-slime-nav elisp-demos elisp-def editorconfig dumb-jump dtrt-indent drag-stuff dotenv-mode doom-themes doom-modeline disable-mouse dired-quick-sort diminish diff-hl devdocs define-word consult-yasnippet consult-lsp compleseus-spacemacs-help company-web company-statistics company-quickhelp column-enforce-mode code-review cliphist clean-aindent-mode centered-cursor-mode browse-at-remote auto-yasnippet auto-highlight-symbol auto-compile async all-the-icons aggressive-indent ace-link)))
   (custom-set-faces
    ;; custom-set-faces was added by Custom.
    ;; If you edit it by hand, you could mess it up, so be careful.
    ;; Your init file should contain only one such instance.
    ;; If there is more than one, they won't work right.
-   '(tree-sitter-hl-face:constant ((t (:foreground "#e45649"))))
-   '(tree-sitter-hl-face:function ((t (:foreground "#4078f2"))))
-   '(tree-sitter-hl-face:keyword ((t (:foreground "#a626a4"))))
-   '(tree-sitter-hl-face:method ((t (:foreground "#4078f2"))))
-   '(tree-sitter-hl-face:number ((t (:foreground "#da8548" :weight bold))))
-   '(tree-sitter-hl-face:operator ((t (:foreground "#383a42"))))
-   '(tree-sitter-hl-face:variable ((t (:foreground "#e45649"))))
-   '(tree-sitter-hl-face:variable.builtin ((t (:foreground "#da8548")))))
+   )
   )
