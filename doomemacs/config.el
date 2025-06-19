@@ -24,7 +24,7 @@
 ;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
 ;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
 ;;
-(setq doom-font (font-spec :family "Hasklug Nerd Font Mono" :size 17 ))
+(setq doom-font (font-spec :family "Roboto Mono" :size 17 ))
 
 ;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
@@ -87,10 +87,10 @@
   (setq indent-tabs-mode nil)
   (setq lsp-diagnostics-provider :none)
   (remove-hook 'rjsx-mode-hook #'rainbow-delimiters-mode)
-  (add-hook 'rjsx-mode-hook 'prettier-js-mode)
+  ;; (add-hook 'rjsx-mode-hook 'prettier-js-mode)
   )
 (after! json-mode
-  (add-hook 'json-mode-hook 'prettier-js-mode)
+  ;; (add-hook 'json-mode-hook 'prettier-js-mode)
   )
 
 
@@ -262,21 +262,22 @@
 
 
 
-(setq +format-on-save-disabled-modes (add-to-list '+format-on-save-disabled-modes 'rjsx-mode))
-(setq +format-on-save-disabled-modes (add-to-list '+format-on-save-disabled-modes 'web-mode))
+;; (setq +format-on-save-disabled-modes (add-to-list '+format-on-save-disabled-modes 'rjsx-mode))
+;; (setq +format-on-save-disabled-modes (add-to-list '+format-on-save-disabled-modes 'web-mode))
 
 
 
 
 
-(add-hook 'web-mode-hook 'prettier-js-mode)
-(setq prettier-js-show-errors nil)
+;; (add-hook 'web-mode-hook 'prettier-js-mode)
+;; (setq prettier-js-show-errors nil)
 
 
 
 
-;; (after! doom-modeline
-;;   (setq doom-modeline-icon nil))
+(after! doom-modeline
+  (setq doom-modeline-icon nil)
+  (setq doom-modeline-height 17))
 
 ;; (use-package! lsp-tailwindcss
 ;;   :after lsp-mode
@@ -287,3 +288,9 @@
 
 
 (setq-default cursor-type 'bar)
+
+
+(after! org
+  (add-hook 'org-mode-hook #'verb-mode)
+  (add-hook 'org-mode-hook #'org-modern-mode)
+  (define-key org-mode-map (kbd "C-c C-r") verb-command-map))
