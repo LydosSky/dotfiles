@@ -7,9 +7,7 @@
 [user]
 	name = Lydos
 	email = lydossky@gmail.com
-[diff]
-	tool = vimdiff
 [difftool]
 	prompt = false
 [core]
-	editor = nvim
+	editor = emacs
