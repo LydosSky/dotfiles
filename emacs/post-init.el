@@ -5,8 +5,9 @@
 ;; THEME
 (use-package base16-theme
   :ensure t
+  :custom
+  (base16-theme-256-color-source 'colors)
   :config
-  (setq base16-theme-256-color-source 'colors)
   (load-theme 'base16-one-light t)
   )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -14,7 +15,6 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; COMPLETION
-
 (use-package corfu
   :ensure t
   :hook
@@ -27,29 +27,45 @@
   (corfu-quit-no-match t)
   (corfu-auto-prefix 2)
   (corfu-preview-current nil)
+  :bind (:map corfu-map
+              ("M-p" . corfu-popupinfo-scroll-down)
+              ("M-n" . corfu-popupinfo-scroll-up))
   :config
   (global-corfu-mode)
+  (global-completion-preview-mode)
   )
 
 
 (use-package corfu-terminal
   :ensure t
-  :init
-  (corfu-terminal-mode +1)
+  :config
+  (unless (display-graphic-p)
+    (corfu-terminal-mode))
   )
+
+(use-package kind-icon
+  :ensure t
+  :after corfu
+  :custom
+  (kind-icon-use-icons nil)
+  (kind-icon-blend-background t)
+  ;; (kind-icon-default-face 'corfu-default) ; only needed with blend-background
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter))
 
 (use-package cape
   :ensure t
-  :init
-  (add-hook 'completion-at-point-functions #'cape-dabbrev)
-  (add-hook 'completion-at-point-functions #'cape-file)
-  (add-hook 'completion-at-point-functions #'cape-elisp-block))
+  :config
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-block))
 
 (use-package vertico
   :ensure t
   :config
+  (vertico-flat-mode)
   (vertico-mode)
-  (vertico-flat-mode))
+  )
 
 (use-package orderless
   :ensure t
@@ -169,6 +185,18 @@
   ;; (org-fontify-quote-and-verse-blocks t)
   (org-startup-truncated t)
   )
+
+(use-package org-journal
+  :ensure t
+  :defer t
+  :init
+  (setq org-journal-prefix-key "C-c j ")
+  :custom
+  (org-journal-dir "~/.journal/")
+  (org-journal-file-format "%Y-%m-%d.org")
+  (org-journal-date-format "%A, %d %B %Y")
+  ;; This carries over all items marked TODO, NEXT, or PROJ
+  (org-journal-carryover-items "TODO=\"TODO\"|TODO=\"NEXT\""))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -181,6 +209,11 @@
   :hook ((prog-mode . apheleia-mode))
   :init
   (apheleia-global-mode +1)
+  :config
+  (add-to-list 'apheleia-mode-alist
+               '(feature-mode . prettier))
+  (add-to-list 'apheleia-mode-alist
+               '(prisma-mode . prettier))
   )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -189,10 +222,13 @@
 ;; DIFF-HL
 
 (use-package git-gutter
+  :if (display-graphic-p)
   :ensure t
   )
+
 (use-package git-gutter-fringe
   :ensure t
+  :if (display-graphic-p)
   :config
   (let ((bitmap (make-vector (frame-char-height) 255)))
     (define-fringe-bitmap 'git-gutter-fr:added bitmap nil nil '(center repeated))
@@ -202,11 +238,21 @@
   (global-git-gutter-mode)
   )
 
+(use-package diff-hl
+  :if (not (display-graphic-p))
+  :config
+  ;; Set indicators to the right side
+  (setq diff-hl-side 'right)
+  (global-diff-hl-mode)
+  (diff-hl-margin-mode)
+  (diff-hl-flydiff-mode 1))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; MAGIT
+;; mode
 
 (use-package magit
   :ensure t
@@ -222,6 +268,16 @@
   :config
   (add-to-list 'eglot-server-programs
                '(prisma-mode "prisma-language-server" "--stdio"))
+  )
+
+(use-package flymake
+  :ensure nil
+  :hook (flymake-mode .
+                      (lambda ()
+                        (run-at-time
+                         0 nil
+                         (lambda ()
+                           (set-window-margins (selected-window) 0 (cdr (window-margins)))))))
   )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -279,10 +335,10 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; MODE LINE
-(use-package mood-line
-  :ensure t
-  :config
-  (mood-line-mode))
+;; (use-package mood-line
+;;   :ensure t
+;;   :config
+;;   (mood-line-mode))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -295,10 +351,10 @@
 
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ;; ENVIRONMENT VARIABLES
-;; (use-package exec-path-from-shell
-;;   :ensure t
-;;   :config
-;;   (exec-path-from-shell-initialize))
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -309,3 +365,76 @@
   (("C-c e" . embrace-commander))
   )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; DOTENV
+(use-package dotenv-mode
+  :ensure t
+  :mode "\\.env\\'"
+  )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; TERM
+(use-package vterm
+  :ensure t
+  )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; CLIPBOARD
+(use-package xclip
+  :ensure t
+  :config
+  (xclip-mode 1))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; CLIPBOARD
+(use-package hl-todo
+  :ensure t
+  :hook (prog-mode . hl-todo-mode)
+  )
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; LIGATURES
+(use-package ligature
+  :config
+  ;; Enable the "www" ligature in every possible major mode
+  (ligature-set-ligatures 't '("www"))
+  ;; Enable traditional ligature support in eww-mode, if the
+  ;; `variable-pitch' face supports it
+  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+  ;; Enable all Cascadia Code ligatures in programming modes
+  (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                       "\\\\" "://"))
+  ;; Enables ligature checks globally in all buffers. You can also do it
+  ;; per mode with `ligature-mode'.
+  (global-ligature-mode t))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; MOUSE
+(use-package disable-mouse
+  :ensure t
+  :config
+  (global-disable-mouse-mode))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(set-cursor-color "#e12120")
+(setq c++-ts-mode-indent-offset 2)
+(setq c-ts-mode-indent-offset 2)
